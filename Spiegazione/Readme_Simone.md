@@ -56,9 +56,9 @@
 
 
 
-    per inserire  inseire i nostri file nel main abbiamo utilizzato questo comando che li richiama :
-    
-    try {
+    per inserire  inseire i nostri file nel main abbiamo utilizzato try con dentro uno switch con 6 case che richiamano i file :
+
+        try {
                     switch (choice) {
                         case 1:
                             InserisciDummyDatas.main(new String[] { databaseName });
