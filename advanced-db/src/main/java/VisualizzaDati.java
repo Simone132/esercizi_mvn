@@ -1,40 +1,57 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Scanner;
+import java.sql.Statement;
 
 public class VisualizzaDati {
     public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println("Nome del database non fornito. Uso 'database_collegato' come nome di default.");
-            args = new String[]{"database_collegato"};
+            args = new String[] { "database_collegato" };
         }
-
-        // Crea uno Scanner per leggere l'input dell'utente
-        Scanner scanner = new Scanner(System.in);
-
-        // Chiedi all'utente quale categoria vuole visualizzare
-        System.out.println("Inserisci l'ID della categoria che vuoi visualizzare:");
-        int idCategoria = scanner.nextInt();
-
-        
 
         Connection conn = null;
         try {
+
             Class.forName("org.sqlite.JDBC");
             String url = "jdbc:sqlite:" + args[0] + ".db";
             conn = DriverManager.getConnection(url);
 
-            String sql = "SELECT * FROM prodotti WHERE id_categoria = ?";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, idCategoria);
-            ResultSet rs = pstmt.executeQuery();
+            // String sql = "SELECT * FROM prodotti";
+            String sql = "SELECT prodotti.id, prodotti.nome, prodotti.quantita, prodotti.prezzo, categorie.nome AS nomeCategoria FROM prodotti JOIN categorie ON prodotti.id_categoria=categorie.id;";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
 
+            // tabulazione nome Database
+            System.out.println("\n \t \t \t|" + "Database " + args[0] + "|\t \t \n");
+
+            // Tabulazione Nomi Colonne
+            System.out.println(
+                    "ID: \t|" + "Nome: \t \t \t \t|" + "Quantita: \t|" + "Prezzo: \t|" + "Nome_Categoria:");
+
+            // Cicliamo i record ottenuti dalla query e li stampiamo tabulandoli in modo che
+            // seguano la tabulazione delle colonne
+
+            // nel caso in quale il nome del prodotto sia troppo lumngo, aumaentare i \t
+            // dopo la string nome, cosi andra smepre tabulato in modo corretot
             while (rs.next()) {
-                System.out.println("ID: " + rs.getInt("id") + ", Nome: " + rs.getString("nome") + ", Quantita: " + rs.getInt("quantita") + ", Prezzo: " + rs.getDouble("prezzo") + ", ID_Categoria: " + rs.getInt("id_categoria"));
+                if (rs.getString("nome").length() > 20) {
+                    System.out.println(
+                            rs.getInt("id") + "\t|" + rs.getString("nome") + "\t|" + rs.getInt("quantita")
+                                    + "\t \t|" + rs.getDouble("prezzo") + "\t \t|" + rs.getString("nomeCategoria"));
+                } else if (rs.getString("nome").length() <= 20 && rs.getString("nome").length() >= 9) {
+                    System.out.println(
+                            rs.getInt("id") + "\t|" + rs.getString("nome") + "\t \t \t|" + rs.getInt("quantita")
+                                    + "\t \t|" + rs.getDouble("prezzo") + "\t \t|" + rs.getString("nomeCategoria"));
+                } else {
+                    System.out.println(
+                            rs.getInt("id") + "\t|" + rs.getString("nome") + "\t \t \t \t|" + rs.getInt("quantita")
+                                    + "\t \t|" + rs.getDouble("prezzo") + "\t \t|" + rs.getString("nomeCategoria"));
+                }
             }
+
+            System.out.println("\t");
 
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println(e.getMessage());
@@ -47,7 +64,5 @@ public class VisualizzaDati {
                 System.out.println(ex.getMessage());
             }
         }
-
-        scanner.close();
     }
 }

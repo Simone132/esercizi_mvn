@@ -18,7 +18,7 @@ public class ModificaDati {
 
             String sql = "UPDATE prodotti SET quantita = ? WHERE id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, 20); // Modifica la quantitï¿½ a 20
+            pstmt.setInt(1, 20); // Modifica la quantità a 20
             pstmt.setInt(2, 1); // Per il prodotto con id = 1
             pstmt.executeUpdate();
 

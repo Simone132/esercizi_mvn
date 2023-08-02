@@ -1,79 +1,110 @@
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Scanner;
 
 public class Main {
-
     public static void main(String[] args) {
-        // Crea uno Scanner per leggere l'input dell'utente
         Scanner scanner = new Scanner(System.in);
-        String continua;
+        int choice;
+        boolean cont = true;
+        String databaseName = null;
 
-        do {
-            // Stampa il menu
-            System.out.println("Seleziona un'opzione:");
-            System.out.println("1: Crea il database e le tabelle");
-            System.out.println("2: Inserisci i dati nelle tabelle");
-            System.out.println("3: Visualizza i dati");
-            System.out.println("4: Modifica i dati");
-            System.out.println("5: Cancella i dati");
-            System.out.println("6: Salva i dati in un file CSV");
+        while (cont) {
+            System.out.println("Scegli un'opzione:");
+            System.out.println("1: Crea un nuovo DB");
+            System.out.println("2: Seleziona un DB esistente");
+            System.out.println("3: Elimina un DB");
+            System.out.println("4: Esci");
+            choice = scanner.nextInt();
+            scanner.nextLine(); // Consuma il newline lasciato da nextInt()
 
-            // Leggi la scelta dell'utente
-            int scelta = scanner.nextInt();
-            scanner.nextLine(); // Rimuove il newline rimanente
+            if (choice == 1) {
+                System.out.println("Inserisci il nome del nuovo database:");
+                databaseName = scanner.nextLine();
+                CreaDatabase.main(new String[] { databaseName });
+            } else if (choice == 2) {
+                File dir = new File("."); // Directory corrente
+                String[] files = dir.list(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.endsWith(".db");
+                    }
+                }); // Filtra solo i file .db
 
-            // Esegui l'operazione scelta
-            switch (scelta) {
-                case 1:
-                    System.out.println("Inserisci il nome del database da creare:");
-                    break;
-                case 2:
-                    System.out.println("Inserisci il nome del database nel quale inserire i dati:");
-                    break;
-                case 3:
-                    System.out.println("Inserisci il nome del database dal quale visualizzare i dati:");
-                    break;
-                case 4:
-                    System.out.println("Inserisci il nome del database del quale modificare i dati:");
-                    break;
-                case 5:
-                    System.out.println("Inserisci il nome del database dal quale cancellare i dati:");
-                    break;
-                case 6:
-                    System.out.println("Inserisci il nome del database dal quale estrarre i dati:");
-                    break;
-                default:
-                    System.out.println("Scelta non valida. Inserisci 1, 2, 3, 4, 5, 6.");
-            }
-            String dbName = scanner.nextLine();
+                // Stampa l'elenco dei database
+                System.out.println("Database disponibili:");
+                for (int i = 0; i < files.length; i++) {
+                    System.out.println((i + 1) + ": " + files[i]);
+                }
 
-            switch (scelta) {
-                case 1:
-                    Crealo.main(new String[] { dbName });
-                    break;
-                case 2:
-                    InserisciDatiCollegati.main(new String[] { dbName });
-                    break;
-                case 3:
-                    VisualizzaDati.main(new String[] { dbName });
-                    break;
-                case 4:
-                    ModificaDati.main(new String[] { dbName });
-                    break;
-                case 5:
-                    CancellaDati.main(new String[] { dbName });
-                    break;
-                case 6:
-                    SalvaInCSV.main(new String[] { dbName });
-                    break;
-                default:
-                    System.out.println("Scelta non valida. Inserisci 1, 2, 3, 4, 5, 6.");
+                System.out.println("Scegli un database (inserisci il numero):");
+                int dbChoice = scanner.nextInt();
+                scanner.nextLine(); // Consuma il newline lasciato da nextInt()
+                databaseName = files[dbChoice - 1].replace(".db", ""); // Rimuovi l'estensione .db dal nome del database
+            } else if (choice == 3) {
+                DeleteDatabase.main(new String[] {});
+            } else if (choice == 4) {
+                System.out.println("Addio!");
+                cont = false;
+                continue;
+            } else {
+                System.out.println("Opzione non valida. Riprova.");
+                continue;
             }
 
-            // Chiedi all'utente se desidera continuare
-            System.out.println("Vuoi eseguire un'altra operazione? (S/N)");
-            continua = scanner.nextLine();
+            while (cont) {
+                System.out.println("Scegli un'opzione per il database " + databaseName + ":");
+                System.out.println("1: Inserisci dummy datas");
+                System.out.println("2: Salva in CSV");
+                System.out.println("3: Modifica dati");
+                System.out.println("4: Cancella dati");
+                System.out.println("5: Inserisci i dati a mano");
+                System.out.println("6: Torna al menu principale");
+                choice = scanner.nextInt();
+                scanner.nextLine(); // Consuma il newline lasciato da nextInt()
 
-        } while (continua.equalsIgnoreCase("S"));
+                try {
+                    switch (choice) {
+                        case 1:
+                            InserisciDummyDatas.main(new String[] { databaseName });
+                            break;
+                        case 2:
+                            SalvaInCSV.main(new String[] { databaseName });
+                            break;
+                        case 3:
+                            ModificaDati.main(new String[] { databaseName });
+                            break;
+                        case 4:
+                            CancellaDati.main(new String[] { databaseName });
+                            break;
+                        case 5:
+                            InserisciManual.main(new String[] { databaseName });
+                            break;
+                        case 6:
+                            System.out.println("Torna al menu principale.");
+                            cont = false;
+                            break;
+                        default:
+                            System.out.println("Opzione non valida. Riprova.");
+                    }
+
+                    // Stampare i dati del database dopo ogni azione, eccetto l'uscita
+                    if (cont) {
+                        VisualizzaDati.main(new String[] { databaseName });
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("Si � verificato un errore: " + e.getMessage());
+                    scanner.close();
+                } finally {
+                    // Il codice qui dentro verr� eseguito indipendentemente dal fatto che
+                    // un'eccezione sia stata lanciata o meno.
+                    cont = true;
+                }
+
+            }
+
+        }
 
         scanner.close();
     }
